@@ -497,35 +497,34 @@ function sortByAsc(arr) {
  *  'qwerty', 3 => 'qetwry' => 'qtrewy' => 'qrwtey'
  */
 function shuffleChar(str, iterations) {
-  let it = iterations;
-  const strLen = str.length;
-
-  let initCharCodes = new Array(strLen);
-  for (let i = 0; i < strLen; i += 1) {
-    initCharCodes[i] = str.charCodeAt(i);
+  function shuffle(initStr) {
+    let shuffled = '';
+    for (let i = 0; i < initStr.length; i += 2) {
+      shuffled += initStr[i];
+    }
+    for (let i = 1; i < initStr.length; i += 2) {
+      shuffled += initStr[i];
+    }
+    return shuffled;
   }
 
-  let resultCharCodes = new Array(strLen);
-
-  while (it) {
-    let j = 0;
-    for (let i = 0; i < strLen; i += 2) {
-      resultCharCodes[j] = initCharCodes[i];
-      j += 1;
-    }
-    for (let i = 1; i < strLen; i += 2) {
-      resultCharCodes[j] = initCharCodes[i];
-      j += 1;
+  const map = new Map();
+  function cache(func, arg) {
+    if (map.has(arg)) {
+      return map.get(arg);
     }
 
-    const temp = initCharCodes;
-    initCharCodes = resultCharCodes;
-    resultCharCodes = temp;
-
-    it -= 1;
+    const result = func(arg);
+    map.set(arg, result);
+    return result;
   }
 
-  return String.fromCharCode(...initCharCodes);
+  let result = str;
+  for (let i = 0; i < iterations; i += 1) {
+    result = cache(shuffle, result);
+  }
+
+  return result;
 }
 
 /**
