@@ -545,8 +545,73 @@ function shuffleChar(str, iterations) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  function splitNumber(num) {
+    const digitsCount = Math.floor(Math.log10(num)) + 1;
+    const digits = new Array(digitsCount);
+
+    for (let i = 0; i < digitsCount; i += 1) {
+      digits[i] =
+        number - (number - Math.floor((number % 10 ** (i + 1)) / 10 ** i));
+    }
+
+    return digits;
+  }
+
+  function joinNumber(arr) {
+    let num = 0;
+    for (let i = 0; i < arr.length; i += 1) {
+      num += arr[i] * 10 ** i;
+    }
+    return num;
+  }
+
+  function permutation(array, n, clbk) {
+    if (n === array.length - 1) {
+      clbk(array);
+    }
+
+    for (let i = n; i < array.length; i += 1) {
+      const arr = [...array];
+      const temp = arr[n];
+      arr[n] = arr[i];
+      arr[i] = temp;
+      permutation(arr, n + 1, clbk);
+    }
+  }
+
+  function findBigger(array, num) {
+    let biggerNum = num;
+    let biggerArr = array;
+
+    permutation(array, 0, (arr) => {
+      const currentNum = joinNumber(arr);
+      if (currentNum > num && (num === biggerNum || currentNum < biggerNum)) {
+        biggerNum = currentNum;
+        biggerArr = arr;
+      }
+    });
+
+    return [biggerNum, biggerArr];
+  }
+
+  let nearestBigger = number;
+  const digits = splitNumber(number);
+
+  for (let i = 1; i < digits.length; i += 1) {
+    const subArr = [...digits].splice(0, i + 1);
+    const subNum = joinNumber(subArr);
+
+    const [biggerNum, biggerArr] = findBigger(subArr, subNum);
+
+    if (biggerNum !== subNum) {
+      digits.splice(0, i + 1, ...biggerArr);
+      nearestBigger = joinNumber(digits);
+      break;
+    }
+  }
+
+  return nearestBigger;
 }
 
 module.exports = {
